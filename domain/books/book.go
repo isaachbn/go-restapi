@@ -1,17 +1,16 @@
 package books
 
-import "github.com/google/uuid"
+import (
+	. "restapi/domain/base"
+)
 
 //Book Struct (Model)
 type Book struct {
-	ID     uuid.UUID `json:"id"`
-	Isbn   string    `json:"isbn"`
-	Title  string    `json:"title"`
-	Author *Author   `json:"author"`
+	Base
+	Isbn   string  `json:"isbn" gorm:"type:text"`
+	Title  string  `json:"title" gorm:"type:text"`
 }
 
-//Author Struct (Model)
-type Author struct {
-	Firstname string `json:"firstname"`
-	Lastname  string `json:"lastname"`
+func NewBook() *Book {
+	return &Book{}
 }
