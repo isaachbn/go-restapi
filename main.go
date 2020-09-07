@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"log"
@@ -22,23 +22,51 @@ type Author struct {
 	Lastname  string `json:"lastname"`
 }
 
-func getBooks(w http.ResponseWriter, r *http.Request)  {
+//Init books var as a slice Book struct
+var books []Book
+
+func init() {
+	uuid1, _ := uuid.NewUUID()
+	uuid2, _ := uuid.NewUUID()
+	//Mock  Data - @todo - implements DB
+	books = append(books, Book{
+		ID:    uuid1,
+		Isbn:  "448743",
+		Title: "Book One",
+		Author: &Author{
+			Lastname:  "Isaac",
+			Firstname: "Henrique",
+		},
+	})
+	books = append(books, Book{
+		ID:    uuid2,
+		Isbn:  "57699",
+		Title: "Book Two",
+		Author: &Author{
+			Lastname:  "Lorena",
+			Firstname: "Farias",
+		},
+	})
+}
+
+func getBooks(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(books)
+}
+
+func getBook(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func getBook(w http.ResponseWriter, r *http.Request)  {
+func createBook(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func createBook(w http.ResponseWriter, r *http.Request)  {
+func updateBook(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func updateBook(w http.ResponseWriter, r *http.Request)  {
-
-}
-
-func deleteBook(w http.ResponseWriter, r *http.Request)  {
+func deleteBook(w http.ResponseWriter, r *http.Request) {
 
 }
 
@@ -52,7 +80,6 @@ func main() {
 	router.HandleFunc("/api/books", createBook).Methods("POST")
 	router.HandleFunc("/api/books/{id}", updateBook).Methods("PUT")
 	router.HandleFunc("/api/books/{id}", deleteBook).Methods("DELETE")
-
+	log.Println("Application is available...")
 	log.Fatal(http.ListenAndServe(":8000", router))
-	fmt.Println("Application is available...")
 }
