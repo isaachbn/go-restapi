@@ -11,6 +11,7 @@ type BookRepository interface {
 	Insert(book *model.Book) (*model.Book, error)
 	All() ([]*model.Book, error)
     FindById(uuid uuid.UUID) (*model.Book, error)
+	Update(book *model.Book) (*model.Book, error)
 }
 
 type BookRepositoryImpl struct {}
@@ -56,4 +57,15 @@ func (_ *BookRepositoryImpl) FindById(uuid uuid.UUID) (*model.Book, error) {
 	}
 
 	return &book, nil
+}
+
+func (_ *BookRepositoryImpl) Update(book *model.Book) (*model.Book, error)  {
+	err := db.ConnectDB().Updates(book).Error
+
+	if err != nil {
+		log.Fatalf("Error to update book: %v", err)
+		return nil, err
+	}
+
+	return book, nil
 }

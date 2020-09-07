@@ -44,3 +44,22 @@ func GetAllBooks() ([]*model.Book, error) {
 func FindBook(uuid uuid.UUID) (*model.Book, error)  {
 	return repository.FindById(uuid)
 }
+
+func UpdateBook(uuid uuid.UUID, book *model.Book) (*model.Book, error)   {
+	bookModel, err := FindBook(uuid)
+
+	if err != nil {
+		return nil, err
+	}
+
+	book.ID = bookModel.ID
+	book, err = book.NewBook()
+
+	if err != nil {
+		return nil, err
+	}
+
+	repository.Update(book)
+
+	return book, nil
+}

@@ -6,6 +6,10 @@ import (
 	"restapi/framework/validator"
 )
 
+type BookDomain interface {
+	NewBook() (*Book, error)
+}
+
 //Book Struct (Model)
 type Book struct {
 	Base
@@ -19,7 +23,10 @@ func (book *Book) validate() error  {
 }
 
 func (book *Book) NewBook() (*Book, error)  {
-	book.ID, _ = uuid.NewV4()
+	if len(book.ID.String()) == 0 {
+		book.ID, _ = uuid.NewV4()
+	}
+
 	err := book.validate()
 
 	if err != nil {

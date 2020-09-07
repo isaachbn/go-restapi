@@ -8,79 +8,89 @@ import (
 )
 
 //Get all books
-func GetBooks(w http.ResponseWriter, r *http.Request) {
+func GetBooks(responseWriter http.ResponseWriter, request *http.Request) {
 	books, err := usecase.GetAllBooks()
 
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
+		respondError(responseWriter, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	respondJson(w, http.StatusOK, books)
+	respondJson(responseWriter, http.StatusOK, books)
 }
 
 //Get book find id
-func GetBook(w http.ResponseWriter, r *http.Request) {
-	id, err := getIdentifier(w, r)
+func GetBook(responseWriter http.ResponseWriter, request *http.Request) {
+	id, err := getIdentifier(responseWriter, request)
 
 	if err != nil {
-		respondError(w, http.StatusNotFound, "Identifier is not valid")
+		respondError(responseWriter, http.StatusNotFound, "Identifier is not valid")
 		return
 	}
 
 	book, err := usecase.FindBook(id)
 
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
+		respondError(responseWriter, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	if book == nil {
-		respondError(w, http.StatusNotFound, "object not found")
+		respondError(responseWriter, http.StatusNotFound, "object not found")
 		return
 	}
 
-	respondJson(w, http.StatusOK, book)
+	respondJson(responseWriter, http.StatusOK, book)
 }
 
 //Create new book
-func CreateBook(w http.ResponseWriter, r *http.Request) {
+func CreateBook(responseWriter http.ResponseWriter, request *http.Request) {
 	var book model.Book
-	err := json.NewDecoder(r.Body).Decode(&book)
+	err := json.NewDecoder(request.Body).Decode(&book)
+	defer request.Body.Close()
 
 	if err != nil {
-		respondError(w, http.StatusBadRequest, err.Error())
+		respondError(responseWriter, http.StatusBadRequest, err.Error())
 		return
 	}
 
 	result, err := usecase.CreateNewBook(&book)
 
 	if err != nil {
-		respondError(w, http.StatusBadRequest, err.Error())
+		respondError(responseWriter, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	json.NewEncoder(w).Encode(result)
+	json.NewEncoder(responseWriter).Encode(result)
 }
 
 //Update book
-//func UpdateBook(w http.ResponseWriter, r *http.Request) {
-//	w.Header().Set("Content-Type", "application/json")
-//	params := mux.Vars(r) //Get params
-//
-//	for index, item := range repositories.Books {
-//		if item.ID.String() == params["id"] {
-//			repositories.Books = append(repositories.Books[:index], repositories.Books[index+1:]...)
-//			var book books.Book
-//			_ = json.NewDecoder(r.Body).Decode(&book)
-//			book.ID, _ = uuid.NewUUID() // Mock uuid -not safe
-//			repositories.Books = append(repositories.Books, book)
-//			json.NewEncoder(w).Encode(book)
-//			return
-//		}
-//	}
-//	json.NewEncoder(w).Encode(repositories.Books)
-//}
+func UpdateBook(responseWriter http.ResponseWriter, request *http.Request) {
+	id, err := getIdentifier(responseWriter, request)
+
+	if err != nil {
+		respondError(responseWriter, http.StatusNotFound, "Identifier is not valid")
+		return
+	}
+
+	var book model.Book
+	err = json.NewDecoder(request.Body).Decode(&book)
+	defer request.Body.Close()
+
+	if err != nil {
+		respondError(responseWriter, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	result, err := usecase.UpdateBook(id, &book)
+
+	if err != nil {
+		respondError(responseWriter, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	json.NewEncoder(responseWriter).Encode(result)
+}
 
 //Delete book
 //func DeleteBook(w http.ResponseWriter, r *http.Request) {
