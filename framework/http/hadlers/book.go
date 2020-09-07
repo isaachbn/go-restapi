@@ -43,6 +43,7 @@ func CreateBook(w http.ResponseWriter, r *http.Request) {
 		Db: db.ConnectDB(),
 	}
 	result, _ := bookRepositoryDb.Insert(&book)
+
 	json.NewEncoder(w).Encode(result)
 }
 
