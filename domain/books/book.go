@@ -1,7 +1,6 @@
 package books
 
 import (
-	"github.com/gofrs/uuid"
 	. "restapi/domain/base"
 	"restapi/framework/validator"
 )
@@ -23,10 +22,7 @@ func (book *Book) validate() error  {
 }
 
 func (book *Book) NewBook() (*Book, error)  {
-	if len(book.ID.String()) == 0 {
-		book.ID, _ = uuid.NewV4()
-	}
-
+	book.GenerateIdentifier()
 	err := book.validate()
 
 	if err != nil {

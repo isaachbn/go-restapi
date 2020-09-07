@@ -10,11 +10,12 @@ import (
 type BookRepository interface {
 	Insert(book *model.Book) (*model.Book, error)
 	All() ([]*model.Book, error)
-    FindById(uuid uuid.UUID) (*model.Book, error)
+	FindById(uuid uuid.UUID) (*model.Book, error)
 	Update(book *model.Book) (*model.Book, error)
+	Delete(book *model.Book) error
 }
 
-type BookRepositoryImpl struct {}
+type BookRepositoryImpl struct{}
 
 //Insert book in database
 func (_ *BookRepositoryImpl) Insert(book *model.Book) (*model.Book, error) {
@@ -30,19 +31,13 @@ func (_ *BookRepositoryImpl) Insert(book *model.Book) (*model.Book, error) {
 
 //List all books
 func (_ *BookRepositoryImpl) All() ([]*model.Book, error) {
-	var book model.Book
-	rows, err := db.ConnectDB().Find(&book).Rows()
-	defer rows.Close()
 	var books []*model.Book
+	rows, err := db.ConnectDB().Find(&books).Rows()
+	defer rows.Close()
 
 	if err != nil {
 		log.Fatalf("Error to list book: %v", err)
 		return nil, err
-	}
-
-	for rows.Next() {
-		db.ConnectDB().ScanRows(rows, &book)
-		books = append(books, &book)
 	}
 
 	return books, nil
@@ -59,7 +54,7 @@ func (_ *BookRepositoryImpl) FindById(uuid uuid.UUID) (*model.Book, error) {
 	return &book, nil
 }
 
-func (_ *BookRepositoryImpl) Update(book *model.Book) (*model.Book, error)  {
+func (_ *BookRepositoryImpl) Update(book *model.Book) (*model.Book, error) {
 	err := db.ConnectDB().Updates(book).Error
 
 	if err != nil {
@@ -68,4 +63,15 @@ func (_ *BookRepositoryImpl) Update(book *model.Book) (*model.Book, error)  {
 	}
 
 	return book, nil
+}
+
+func (_ *BookRepositoryImpl) Delete(book *model.Book) error  {
+	err := db.ConnectDB().Delete(book).Error
+
+	if err != nil {
+		log.Fatalf("Error to delete book: %v", err)
+		return err
+	}
+
+	return nil
 }

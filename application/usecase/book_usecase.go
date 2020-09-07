@@ -63,3 +63,19 @@ func UpdateBook(uuid uuid.UUID, book *model.Book) (*model.Book, error)   {
 
 	return book, nil
 }
+
+func DeleteBook(uuid uuid.UUID) error {
+	bookModel, err := FindBook(uuid)
+
+	if err != nil {
+		return err
+	}
+
+	err = repository.Delete(bookModel)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

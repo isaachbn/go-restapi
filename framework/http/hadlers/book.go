@@ -61,7 +61,7 @@ func CreateBook(responseWriter http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	json.NewEncoder(responseWriter).Encode(result)
+	respondJson(responseWriter, http.StatusCreated, result)
 }
 
 //Update book
@@ -89,19 +89,24 @@ func UpdateBook(responseWriter http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	json.NewEncoder(responseWriter).Encode(result)
+	respondJson(responseWriter, http.StatusAccepted, result)
 }
 
 //Delete book
-//func DeleteBook(w http.ResponseWriter, r *http.Request) {
-//	w.Header().Set("Content-Type", "application/json")
-//	params := mux.Vars(r) //Get params
-//
-//	for index, item := range repositories.Books {
-//		if item.ID.String() == params["id"] {
-//			repositories.Books = append(repositories.Books[:index], repositories.Books[index+1:]...)
-//			break
-//		}
-//	}
-//	json.NewEncoder(w).Encode(repositories.Books)
-//}
+func DeleteBook(responseWriter http.ResponseWriter, request *http.Request) {
+	id, err := getIdentifier(responseWriter, request)
+
+	if err != nil {
+		respondError(responseWriter, http.StatusNotFound, "Identifier is not valid")
+		return
+	}
+
+	err = usecase.DeleteBook(id)
+
+	if err != nil {
+		respondError(responseWriter, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	respondJson(responseWriter, http.StatusNoContent, "")
+}

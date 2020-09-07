@@ -6,6 +6,8 @@ import (
 	"time"
 )
 
+const UUID_BLANK = "00000000-0000-0000-0000-000000000000"
+
 type Base struct {
 	ID        uuid.UUID      `json:"id" gorm:"type:uuid;primary_key" validate:"required";"uuid4"`
 	CreatedAt time.Time      `json:"created_at"`
@@ -21,4 +23,11 @@ func (base *Base) BeforeCreate(tx *gorm.DB) error {
 func (base *Base) BeforeUpdate(*gorm.DB) error {
 	base.UpdatedAt = time.Now()
 	return nil
+}
+
+func (base *Base) GenerateIdentifier()  {
+	valueId, _ := base.ID.Value()
+	if valueId == UUID_BLANK {
+		base.ID, _ = uuid.NewV4()
+	}
 }
