@@ -4,14 +4,19 @@ import (
 	"encoding/json"
 	"net/http"
 	"restapi/application/usecase"
-	"restapi/domain/books"
+	model "restapi/domain/books"
 )
 
 //Get all books
 func GetBooks(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	books, _ := usecase.GetAllBooks()
-	json.NewEncoder(w).Encode(books)
+	books, err := usecase.GetAllBooks()
+
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	respondJson(w, http.StatusOK, books)
 }
 
 //Get book find id
@@ -32,11 +37,20 @@ func GetBooks(w http.ResponseWriter, r *http.Request) {
 
 //Create new book
 func CreateBook(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	var bookRequest books.Book
-	_ = json.NewDecoder(r.Body).Decode(&bookRequest)
-	book, _ := bookRequest.NewBook()
-	result, _ := usecase.CreateNewBook(book)
+	var book model.Book
+	err := json.NewDecoder(r.Body).Decode(&book)
+
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	result, err := usecase.CreateNewBook(&book)
+
+	if err != nil {
+		respondError(w, http.StatusBadRequest, err.Error())
+		return
+	}
 
 	json.NewEncoder(w).Encode(result)
 }
