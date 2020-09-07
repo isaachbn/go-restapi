@@ -6,12 +6,15 @@ import (
 )
 
 func TestNewBook(t *testing.T) {
-	_, err := NewBook("46677", "Test Book")
+	book := Book{Title: "test", Isbn: "test"}
+	_, err := book.NewBook()
 	require.Nil(t, err)
 
-	_, err = NewBook("", "Test Book")
+	book = Book{Title: "", Isbn: "test"}
+	_, err = book.NewBook()
 	require.Error(t, err)
 
-	_, err = NewBook("33322", "")
+	book = Book{Title: "test", Isbn: ""}
+	_, err = book.NewBook()
 	require.Error(t, err)
 }

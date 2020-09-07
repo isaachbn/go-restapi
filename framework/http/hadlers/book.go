@@ -3,18 +3,14 @@ package hadlers
 import (
 	"encoding/json"
 	"net/http"
-	"restapi/application/repositories"
+	"restapi/application/usecase"
 	"restapi/domain/books"
-	"restapi/framework/db"
 )
 
 //Get all books
 func GetBooks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	bookRepositoryDb := repositories.BookRepositoryDb{
-		Db: db.ConnectDB(),
-	}
-	books, _ := bookRepositoryDb.All()
+	books, _ := usecase.GetAllBooks()
 	json.NewEncoder(w).Encode(books)
 }
 
@@ -37,12 +33,10 @@ func GetBooks(w http.ResponseWriter, r *http.Request) {
 //Create new book
 func CreateBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	var book books.Book
-	_ = json.NewDecoder(r.Body).Decode(&book)
-	bookRepositoryDb := repositories.BookRepositoryDb{
-		Db: db.ConnectDB(),
-	}
-	result, _ := bookRepositoryDb.Insert(&book)
+	var bookRequest books.Book
+	_ = json.NewDecoder(r.Body).Decode(&bookRequest)
+	book, _ := bookRequest.NewBook()
+	result, _ := usecase.CreateNewBook(book)
 
 	json.NewEncoder(w).Encode(result)
 }

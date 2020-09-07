@@ -18,10 +18,7 @@ func (book *Book) validate() error  {
 	return validate.Struct(book)
 }
 
-func NewBook(isbn, title string) (*Book, error)  {
-	book := &Book{}
-	book.Isbn = isbn
-	book.Title = title
+func (book *Book) NewBook() (*Book, error)  {
 	book.ID, _ = uuid.NewV4()
 	err := book.validate()
 

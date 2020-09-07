@@ -1,22 +1,21 @@
 package repositories
 
 import (
-	"gorm.io/gorm"
 	"log"
 	model "restapi/domain/books"
+	"restapi/framework/db"
 )
 
 type BookRepository interface {
 	Insert(book *model.Book) (*model.Book, error)
-	All() (*model.Book, error)
+	All() ([]*model.Book, error)
 }
 
-type BookRepositoryDb struct {
-	Db *gorm.DB
-}
+type BookRepositoryImpl struct {}
 
-func (repo BookRepositoryDb) Insert(book *model.Book) (*model.Book, error)  {
-	err := repo.Db.Create(book).Error
+//Insert book in database
+func (_ *BookRepositoryImpl) Insert(book *model.Book) (*model.Book, error) {
+	err := db.ConnectDB().Create(book).Error
 
 	if err != nil {
 		log.Fatalf("Error to persist book: %v", err)
@@ -26,10 +25,11 @@ func (repo BookRepositoryDb) Insert(book *model.Book) (*model.Book, error)  {
 	return book, nil
 }
 
-func (repo BookRepositoryDb) All() ([]model.Book, error)  {
-	rows, err := repo.Db.Table("books").Rows()
+//List all books
+func (_ *BookRepositoryImpl) All() ([]*model.Book, error) {
+	rows, err := db.ConnectDB().Table("books").Rows()
 	defer rows.Close()
-	var books []model.Book
+	var books []*model.Book
 
 	if err != nil {
 		log.Fatalf("Error to list book: %v", err)
@@ -39,8 +39,8 @@ func (repo BookRepositoryDb) All() ([]model.Book, error)  {
 	var book model.Book
 
 	for rows.Next() {
-		repo.Db.ScanRows(rows, books)
-		books = append(books, book)
+		db.ConnectDB().ScanRows(rows, &book)
+		books = append(books, &book)
 	}
 
 	return books, nil
