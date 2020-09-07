@@ -79,7 +79,21 @@ func createBook(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateBook(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	params := mux.Vars(r) //Get params
 
+	for index, item := range books{
+		if item.ID.String() == params["id"] {
+			books = append(books[:index], books[index+1:]...)
+			var book Book
+			_ = json.NewDecoder(r.Body).Decode(&book)
+			book.ID, _ = uuid.NewUUID() // Mock uuid -not safe
+			books = append(books, book)
+			json.NewEncoder(w).Encode(book)
+			return
+		}
+	}
+	json.NewEncoder(w).Encode(books)
 }
 
 func deleteBook(w http.ResponseWriter, r *http.Request) {
