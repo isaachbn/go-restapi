@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"github.com/gofrs/uuid"
 	"log"
 	model "restapi/domain/books"
 	"restapi/framework/db"
@@ -9,6 +10,7 @@ import (
 type BookRepository interface {
 	Insert(book *model.Book) (*model.Book, error)
 	All() ([]*model.Book, error)
+    FindById(uuid uuid.UUID) (*model.Book, error)
 }
 
 type BookRepositoryImpl struct {}
@@ -27,7 +29,8 @@ func (_ *BookRepositoryImpl) Insert(book *model.Book) (*model.Book, error) {
 
 //List all books
 func (_ *BookRepositoryImpl) All() ([]*model.Book, error) {
-	rows, err := db.ConnectDB().Table("books").Rows()
+	var book model.Book
+	rows, err := db.ConnectDB().Find(&book).Rows()
 	defer rows.Close()
 	var books []*model.Book
 
@@ -36,12 +39,21 @@ func (_ *BookRepositoryImpl) All() ([]*model.Book, error) {
 		return nil, err
 	}
 
-	var book model.Book
-
 	for rows.Next() {
 		db.ConnectDB().ScanRows(rows, &book)
 		books = append(books, &book)
 	}
 
 	return books, nil
+}
+
+func (_ *BookRepositoryImpl) FindById(uuid uuid.UUID) (*model.Book, error) {
+	var book model.Book
+	row := db.ConnectDB().Find(&book, "id = ?", uuid).Row()
+
+	if row.Err() != nil {
+		return nil, row.Err()
+	}
+
+	return &book, nil
 }

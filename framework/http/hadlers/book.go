@@ -20,20 +20,28 @@ func GetBooks(w http.ResponseWriter, r *http.Request) {
 }
 
 //Get book find id
-//func GetBook(w http.ResponseWriter, r *http.Request) {
-//	w.Header().Set("Content-Type", "application/json")
-//	params := mux.Vars(r) //Get params
-//
-//	//Loop through books and infd with id
-//	for _, item := range repositories.Books {
-//		if item.ID.String() == params["id"] {
-//			json.NewEncoder(w).Encode(item)
-//			return
-//		}
-//	}
-//
-//	json.NewEncoder(w).Encode(&books.Book{})
-//}
+func GetBook(w http.ResponseWriter, r *http.Request) {
+	id, err := getIdentifier(w, r)
+
+	if err != nil {
+		respondError(w, http.StatusNotFound, "Identifier is not valid")
+		return
+	}
+
+	book, err := usecase.FindBook(id)
+
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if book == nil {
+		respondError(w, http.StatusNotFound, "object not found")
+		return
+	}
+
+	respondJson(w, http.StatusOK, book)
+}
 
 //Create new book
 func CreateBook(w http.ResponseWriter, r *http.Request) {

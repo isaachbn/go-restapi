@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"github.com/gofrs/uuid"
 	"restapi/application/repositories"
 	model "restapi/domain/books"
 )
@@ -37,4 +38,9 @@ func GetAllBooks() ([]*model.Book, error) {
 	}
 
 	return books, nil
+}
+
+//Find book by id
+func FindBook(uuid uuid.UUID) (*model.Book, error)  {
+	return repository.FindById(uuid)
 }
