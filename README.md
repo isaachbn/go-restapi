@@ -1,4 +1,4 @@
-# Aplicação Go
+# Aplicação GoLang
 
 O projeto têm como objetivo centralizar o estudo sobre a linguagem de Go Land.
 
